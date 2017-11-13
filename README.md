@@ -10,14 +10,6 @@ The main motivation behind this project is to make `rspec` run in parallel.
 
 ### How it's supposed to work ###
 
-```
-commands = [
-  'pwd',
-  'ls',
-  'whoami'
-]
-```
-
 ### Process overview ###
 
 #### Pre-requisites ####
@@ -39,6 +31,12 @@ commands = [
 ### API ###
 
 ```
+commands = [
+  'pwd',
+  'ls',
+  'whoami'
+]
+
 rabbit_container = Docker::Container.create('rabbitmq').start
 
 master = Radagast::Manager.new do |config|
@@ -80,5 +78,5 @@ stack.run
 
 ### Links ###
 
-# https://github.com/dry-rb/dry-configurable
-# https://github.com/swipely/docker-api
+* https://github.com/dry-rb/dry-configurable
+* https://github.com/swipely/docker-api
