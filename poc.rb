@@ -30,27 +30,45 @@ begin
   if options[:manager]
     puts "Start manager..."
     @exchange_tasks = @channel.default_exchange
+    @published_cnt = 0
+    @processed_cnt = 0
 
     # master subscribes to results queue
     t = Thread.new do
       puts "Subscribe for results..."
       @queue_results.subscribe(block: true) do |delivery_info, metadata, payload|
+        @processed_cnt += 1
         data = JSON.parse(payload)
-        puts "Result has arrived: #{data}"
+        puts "Result #{@processed_cnt}/#{@published_cnt} has arrived: #{data}"
+        if @processed_cnt == @published_cnt
+          puts ""
+          puts "Aggregate the results"
+          puts "... and exit"
+          @rabbit.close
+        end
       end
     end
 
     # publish some example tasks
-    puts "Push some tasks..."
+    puts "Publish some tasks..."
     @exchange_tasks.publish(JSON.generate(cmd: 'pwd'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'id'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'ls'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'cat /etc/passwd | grep bwilczek'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'whoami'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'ls /no/such/path'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'ruby -v'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'bundle list'), :routing_key => 'tasks')
+    @published_cnt += 1
     @exchange_tasks.publish(JSON.generate(cmd: 'ls -la'), :routing_key => 'tasks')
+    @published_cnt += 1
 
     t.join
   end
@@ -65,7 +83,7 @@ begin
       data = JSON.parse(payload)
       puts "Task has arrived: #{data}"
       # do the job and respond with result
-      sleep 1
+      sleep rand(1..3)
       stdout, stderr, status = Open3.capture3(data['cmd'])
       response = {
         cmd: data['cmd'],
