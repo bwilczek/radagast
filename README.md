@@ -31,52 +31,37 @@ The main motivation behind this project is to make `rspec` run in parallel.
 ### API ###
 
 ```
-commands = [
-  'pwd',
-  'ls',
-  'whoami'
-]
+# start rabbit first
+# start bunch of workers
 
-rabbit_container = Docker::Container.create('rabbitmq').start
+############
+# WORKER API
 
-master = Radagast::Manager.new do |config|
-  config.rabbit_url = "guest:guest@localhost:5672/"
+worker = Radagast::Worker.new(rabbit_url, key)
+worker.start
+
+#############
+# MANAGER API
+
+manager = Radagast::Manager.new(rabbit_url, key)
+
+manager.run('ls', tag: 1, more_meta: 'asd') do |stdout, stderr, exit_code, meta|
+  # bla bla bla
 end
 
-Radagast::WorkerPool::Docker.start(5, master.config.key, Docker::Container.create('app:v17.4'))
+manager.run('pwd')
 
-commands.each do |cmd|
-  master.run(cmd, tag: :standard) do |stdout, stderr, exit_code, meta|
-    puts meta[:cmd], stdout
-  end
+manager.finish do |aggregated_results|
+  # bla bla bla
 end
 
-master.run('ls /etc/nosuchfile', tag: :custom) do |stdout, stderr, exit_code, meta|
-  puts stderr, exit_code
-end
+# stop the workers
+# stop rabbit
 
-master.wait do
-  # post processing logic
-end
-
-# destroy rabbit and worker containers
-```
-
-### Stack mode ###
-
-```
-stack = Radagast::Stack.new do |config|
-  config.docker_image = 'app:v17.4'
-  on_task = lambda do |stdout, stderr, exit_code, meta|
-  end
-  on_finish = lambda do
-  end
-end
-
-stack.run
 ```
 
 ### Links ###
 
 * https://github.com/dry-rb/dry-configurable
 * https://github.com/swipely/docker-api
+* http://rubybunny.info/articles/connecting.html

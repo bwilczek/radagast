@@ -6,17 +6,9 @@ require_relative './lib/radagast/config'
 
 config = Radagast::Config.parse_argv
 
-connection = {
-  host: '127.0.0.1',
-  vhost: '/',
-  port: '5672',
-  user: 'guest',
-  pass: 'guest'
-}
-
 begin
   puts "Setup..."
-  @rabbit = Bunny.new connection
+  @rabbit = Bunny.new config.rabbit
   @rabbit.start
 
   @channel = @rabbit.create_channel
