@@ -1,3 +1,9 @@
+PATH
+  remote: .
+  specs:
+    radagast (0.0.1.pre.dev)
+      bunny (~> 2.6)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -9,7 +15,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bunny (~> 2.6)
+  radagast!
 
 BUNDLED WITH
    1.14.6

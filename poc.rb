@@ -1,13 +1,10 @@
 require 'bunny'
 require 'json'
-require 'optparse'
 require 'open3'
 
-options = {}
-OptionParser.new do |opt|
-  opt.on('--manager') { |o| options[:manager] = true }
-  opt.on('--worker') { |o| options[:worker] = true }
-end.parse!
+require_relative './lib/radagast/config'
+
+config = Radagast::Config.parse_argv
 
 connection = {
   host: '127.0.0.1',
@@ -27,7 +24,7 @@ begin
   @queue_results  = @channel.queue('results', :auto_delete => true)
 
   ########## MANAGER ################
-  if options[:manager]
+  if config.manager
     puts "Start manager..."
     @exchange_tasks = @channel.default_exchange
     @published_cnt = 0
@@ -77,7 +74,7 @@ begin
   end
 
   ########## WORKER ################
-  if options[:worker]
+  if config.worker
     worker_id = rand(100..999)
     puts "Start worker #{worker_id}..."
     @exchange_results = @channel.default_exchange
