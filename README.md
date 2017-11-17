@@ -35,13 +35,19 @@ The main motivation behind this project is to make `rspec` run in parallel.
 # start bunch of workers
 
 ############
-# WORKER API
+# WORKER - execute from gem as external application. No custom logic apart from providing the right environment (e.g. docker container)
 
+radagast --rabbit amqp://user:pass@host:5672 --key my-web-project
+
+# internally:
 worker = Radagast::Worker.new(rabbit_url, key)
 worker.start
 
 #############
-# MANAGER API
+# MANAGER API - execute programatically. Custom logic involved.
+
+rabbit_url = 'amqp://user:pass@host:5672'
+key = 'my-web-project'
 
 manager = Radagast::Manager.new(rabbit_url, key)
 
