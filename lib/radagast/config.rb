@@ -2,15 +2,13 @@ require 'optparse'
 
 module Radagast
   Config = Struct.new(:key, :rabbit, :test, :manager, :worker) do
-    def self.default_config
-      config = new
-      config.key = 'default'
-      config.rabbit = 'amqp://guest:guest@127.0.0.1:5672'
-      config
+    def initialize
+      self.key = 'default'
+      self.rabbit = 'amqp://guest:guest@127.0.0.1:5672'
     end
 
     def self.parse_argv(argv = ARGV)
-      config = default_config
+      config = new
       OptionParser.new do |opt|
         opt.on('--key KEY') { |o| config.key = o }
         opt.on('--rabbit RABBIT') { |o| config.rabbit = o }

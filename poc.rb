@@ -5,9 +5,8 @@ require 'open3'
 
 require_relative './lib/radagast/config'
 
-puts ARGV.inspect
-
 config = Radagast::Config.parse_argv
+puts config.inspect
 
 begin
   puts "Setup..."
