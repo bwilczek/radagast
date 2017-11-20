@@ -14,7 +14,7 @@ module Radagast
       @channel = @rabbit.create_channel
       @exchange = @channel.default_exchange
       @queue = @channel.queue(queue_name, auto_delete: true)
-      @logger = Logger.new(STDOUT)
+      @logger = Logger.new(config.log_file)
       @logger.level = config.log_level
     end
 

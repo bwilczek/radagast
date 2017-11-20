@@ -16,6 +16,7 @@ RSpec.describe 'End-to-end flow' do
     # SETUP
     @config = Radagast::Config.new
     # @config.log_level = Logger::DEBUG
+    # @config.log_file = '/tmp/radagast.log'
     @manager = Radagast::Manager.new @config
     @worker = Radagast::Worker.new @config
 

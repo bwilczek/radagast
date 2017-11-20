@@ -2,11 +2,12 @@ require 'optparse'
 require 'logger'
 
 module Radagast
-  Config = Struct.new(:key, :rabbit, :log_level) do
+  Config = Struct.new(:key, :rabbit, :log_level, :log_file) do
     def initialize
       self.key = 'default'
       self.rabbit = 'amqp://guest:guest@127.0.0.1:5672'
       self.log_level = Logger::UNKNOWN
+      self.log_file = STDOUT
     end
 
     def self.parse_argv(argv = ARGV)
