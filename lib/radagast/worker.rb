@@ -17,7 +17,7 @@ module Radagast
 
     def start
       puts 'Worker setup, subscribing to tasks queue'
-      @queue.subscribe(block: true) do |delivery_info, metadata, payload|
+      @queue.subscribe(block: true) do |_delivery_info, _metadata, payload|
         data = JSON.parse(payload)
         puts "Task has arrived: #{data}"
         stdout, stderr, status = Open3.capture3(data['cmd'])
@@ -33,9 +33,8 @@ module Radagast
     end
 
     def finish
-      puts "Finish worker"
+      puts 'Finish worker'
       cleanup
     end
-
   end
 end

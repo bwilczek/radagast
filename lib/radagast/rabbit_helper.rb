@@ -18,7 +18,7 @@ module Radagast
     end
 
     def publish(data)
-      @exchange.publish(JSON.generate(data), :routing_key => @routing_key)
+      @exchange.publish(JSON.generate(data), routing_key: @routing_key)
     end
   end
 end

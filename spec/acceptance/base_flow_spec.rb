@@ -1,39 +1,46 @@
 require_relative '../../lib/radagast/manager.rb'
 require_relative '../../lib/radagast/worker.rb'
 
-RSpec.describe Radagast::Manager do
-  it 'processes simple tasks with one worker' do
-    # TODO: spin up rabbitmq at guest:guest@localhost:5672
-    config = Radagast::Config.new
-    manager = Radagast::Manager.new config
-    worker = Radagast::Worker.new config
+RSpec.describe 'End-to-end flow' do
+  before(:all) do
+    # TODO: spin up rabbitmq container at guest:guest@localhost:5672
+  end
 
-    manager.start
+  after(:all) do
+    # TODO: kill rabbitmq container
+  end
+
+  before(:each) do
+    @config = Radagast::Config.new
+    @manager = Radagast::Manager.new @config
+    @worker = Radagast::Worker.new @config
+
+    @manager.start
 
     # Worker is single-threaded and blocking. Extract it to a thread here.
-    t = Thread.new { worker.start }
+    @worker_thread = Thread.new { @worker.start }
+  end
 
-    manager.task 'echo test1' do |result|
-      puts "Task 1 result"
+  after(:each) do
+    @worker.finish
+    @worker_thread.join
+  end
+
+  it 'processes simple tasks with one worker' do
+    @manager.task 'echo test1' do |result|
       expect(result.exit_code).to eq 0
       expect(result.stdout).to eq 'test1'
       expect(result.stderr).to eq ''
     end
 
-    manager.task 'echo test2' do |result|
-      puts "Task 2 result"
+    @manager.task 'echo test2' do |result|
       expect(result.exit_code).to eq 0
       expect(result.stdout).to eq 'test2'
       expect(result.stderr).to eq ''
     end
 
-    manager.finish do |results|
-      puts "Manager finish"
-      puts results.inspect
+    @manager.finish do |results|
       expect(results.length).to eq 2
     end
-
-    worker.finish
-    t.join
   end
 end

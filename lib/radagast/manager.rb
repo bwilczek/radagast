@@ -18,7 +18,7 @@ module Radagast
     end
 
     def task(cmd, &blk)
-      puts "Publishing task"
+      puts 'Publishing task'
       @published_cnt += 1
       @callbacks[cmd] = blk
       publish(cmd: cmd)
@@ -30,29 +30,28 @@ module Radagast
       result.exit_code = data['exitstatus']
       result.stderr = data['stderr'].strip
       result.stdout = data['stdout'].strip
-      result.meta = {cmd: data['cmd']}
+      result.meta = { cmd: data['cmd'] }
       @callbacks[data['cmd']].call result
     end
 
     def finish
-      puts "Finishing master"
+      puts 'Finishing manager'
       @t.join
       yield @all_results if block_given?
     end
 
     def start
       @t = Thread.new do
-        @queue.subscribe(block: true) do |delivery_info, metadata, payload|
-          puts "Manager subscribe to queue"
+        @queue.subscribe(block: true) do |_delivery_info, _metadata, payload|
+          puts 'Manager subscribe to queue'
           @processed_cnt += 1
           data = JSON.parse(payload)
           @all_results << data
           process_data_callback(data)
           if @processed_cnt == @published_cnt
-            puts ""
+            puts ''
             puts "Aggregate the results (size: #{@all_results.length})"
-            puts " > with non-zero exit code: #{@all_results.count {|i| i['exitstatus'] != 0}}"
-            puts "... and exit manager"
+            puts '... and exit manager'
             cleanup
           end
         end
