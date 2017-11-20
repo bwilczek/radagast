@@ -1,8 +1,10 @@
 require 'pp'
-# require 'radagast'
 
+# for development:
 require_relative 'lib/radagast/config'
 require_relative 'lib/radagast/manager'
+# for production:
+# require 'radagast'
 
 config = Radagast::Config.new
 manager = Radagast::Manager.new config

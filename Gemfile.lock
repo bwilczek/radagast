@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    radagast (0.0.1.pre.dev)
+    radagast (0.0.1)
       bunny (~> 2.6)
 
 GEM
