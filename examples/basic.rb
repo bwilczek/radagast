@@ -2,8 +2,8 @@ require 'pp'
 require 'logger'
 
 # for development:
-require_relative 'lib/radagast/config'
-require_relative 'lib/radagast/manager'
+require_relative '../lib/radagast/config'
+require_relative '../lib/radagast/manager'
 # for production:
 # require 'radagast'
 

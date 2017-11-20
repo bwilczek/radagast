@@ -1,73 +1,82 @@
-# WORK IN PROGRESS, NOTHING TO SEE HERE YET #
-
 ### Overview ###
 
-Distribute a list of tasks (shell commands) across different workers (docker containers: possibly running in Docker Swarm).
+Distribute a list of tasks (shell commands) across different workers, running as separate applications.
 
 Aggregate the result workers output to their `stdout` and `stderr`.
 
 The main motivation behind this project is to make `rspec` run in parallel.
 
-### How it's supposed to work ###
+### Generic workflow ###
 
-### Process overview ###
+* start RabbitMQ
+* start worker(s) - separate process(es)
+* start manager (programatically)
+* manager pushes commands to the queue
+* workers pick up command and execute them
+* once command execution is done the output is returned to manager via RabbitMQ
+* returned results are processed on manager's side
+* stop workers when all commands are completed
+* stop RabbitMQ if it's not needed anymore
+
+### Use cases ###
 
 #### Pre-requisites ####
 
-* `docker`
-* Docker image for worker
+* `RabbitMQ` is available at default location: `amqp://user:pass@host:5672`
+* `radagast` gem has been installed
 
-#### Workflow ####
+#### Manager and a single worker ####
 
-* start rabbitmq (container)
-* start manager (create the queue)
-* start containerized workers (subscribe to the queue)
-* manager pushes commands to the queue
-* workers pick up command and execute them
-* once command execution is done the exit_code, and contents of stderr and stdout are pushed back to master via rabbitmq
-* returned results are processed on master side
-* stop and remove containers when all commands are completed
+```
+# start the worker
+radagast
+```
+
+```
+# Example manager code (see examples/basic.rb)
+
+require 'radagast'
+
+manager = Radagast::Manager.new
+manager.start
+
+manager.task 'echo test1' do |result|
+  puts result.exit_code  # 0
+  puts result.stdout     # "test1"
+  puts result.stderr     # ""
+end
+
+manager.task 'cat /etc/shadow' do |result|
+  puts result.exit_code  # 1
+  puts result.stdout     # ""
+  puts result.stderr     # "cat: /etc/shadow: Permission denied"
+end
+
+manager.finish do |results|
+  puts results.count     # 2
+end
+```
+
+#### Manager and multiple workers ####
+
+under construction
+
+#### Running rspec ####
+
+under construction
+
+#### dockerizing workers ####
+
+under construction
 
 ### API ###
 
-```
-# start rabbit first
-# start bunch of workers
+under construction
 
-############
-# WORKER - execute from gem as external application. No custom logic apart from providing the right environment (e.g. docker container)
+### Configuration ###
 
-radagast --rabbit amqp://user:pass@host:5672 --key my-web-project
+under construction
 
-# internally:
-worker = Radagast::Worker.new(rabbit_url, key)
-worker.start
+##### Resources #####
 
-#############
-# MANAGER API - execute programatically. Custom logic involved.
-
-rabbit_url = 'amqp://user:pass@host:5672'
-key = 'my-web-project'
-
-manager = Radagast::Manager.new(rabbit_url, key)
-
-manager.run('ls', tag: 1, more_meta: 'asd') do |stdout, stderr, exit_code, meta|
-  # bla bla bla
-end
-
-manager.run('pwd')
-
-manager.finish do |aggregated_results|
-  # bla bla bla
-end
-
-# stop the workers
-# stop rabbit
-
-```
-
-### Links ###
-
-* https://github.com/dry-rb/dry-configurable
-* https://github.com/swipely/docker-api
 * http://rubybunny.info/articles/connecting.html

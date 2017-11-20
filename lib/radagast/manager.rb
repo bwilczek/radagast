@@ -7,7 +7,7 @@ require_relative 'result'
 module Radagast
   # Dispatches tasks and aggregates the results
   class Manager < RabbitHelper
-    def initialize(config)
+    def initialize(config = Radagast::Config.new)
       super(
         queue_name: "results-#{config.key}",
         routing_key: "tasks-#{config.key}",

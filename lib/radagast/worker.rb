@@ -7,7 +7,7 @@ require_relative 'rabbit_helper'
 module Radagast
   # Fetches the task, processes it and returns the result
   class Worker < RabbitHelper
-    def initialize(config)
+    def initialize(config = Radagast::Config.new)
       super(
         queue_name: "tasks-#{config.key}",
         routing_key: "results-#{config.key}",
