@@ -1,3 +1,5 @@
+require 'securerandom'
+
 require_relative 'config'
 require_relative 'rabbit_helper'
 require_relative 'result'
@@ -17,21 +19,22 @@ module Radagast
       @all_results = []
     end
 
-    def task(cmd, &blk)
+    def task(cmd, meta = {}, &blk)
       logger.info 'Publishing task'
       @published_cnt += 1
-      @callbacks[cmd] = blk
-      publish(cmd: cmd)
+      @callbacks[cmd] = blk if block_given?
+      publish(cmd: cmd, meta: meta, task_id: SecureRandom.uuid)
     end
 
     def process_callback(data)
       logger.info "Result #{@processed_cnt}/#{@published_cnt} is here: #{data}"
       result = Result.new
-      result.exit_code = data['exitstatus']
-      result.stderr = data['stderr'].strip
-      result.stdout = data['stdout'].strip
-      result.meta = { cmd: data['cmd'] }
-      @callbacks[data['cmd']].call result
+      result.exit_code = data['exit_code']
+      result.stderr = data['stderr']
+      result.stdout = data['stdout']
+      result.meta = data['meta']
+      result.task_id = data['task_id']
+      @callbacks[result.task_id].call(result) if @callbacks.key? result.task_id
     end
 
     def finish

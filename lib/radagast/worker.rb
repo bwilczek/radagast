@@ -20,11 +20,11 @@ module Radagast
       subscribe do |data|
         stdout, stderr, status = Open3.capture3(data['cmd'])
         response = {
-          cmd: data['cmd'],
-          meta: data['meta'],
-          stdout: stdout,
-          stderr: stderr,
-          exitstatus: status.exitstatus
+          task_id: data['task_id'],
+          meta: data['meta'].merge(cmd: data['cmd']),
+          stdout: stdout.strip,
+          stderr: stderr.strip,
+          exit_code: status.exitstatus
         }
         publish(response)
       end

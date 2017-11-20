@@ -31,11 +31,7 @@ RSpec.describe 'End-to-end flow' do
       expect(result.stderr).to eq ''
     end
 
-    @manager.task 'echo test2' do |result|
-      expect(result.exit_code).to eq 0
-      expect(result.stdout).to eq 'test2'
-      expect(result.stderr).to eq ''
-    end
+    @manager.task 'echo test2', some_tag: :some_value
 
     @manager.finish do |results|
       expect(results.length).to eq 2
