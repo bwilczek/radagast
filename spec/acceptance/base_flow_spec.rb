@@ -1,3 +1,5 @@
+require 'logger'
+
 require_relative '../../lib/radagast/manager.rb'
 require_relative '../../lib/radagast/worker.rb'
 
@@ -10,8 +12,10 @@ RSpec.describe 'End-to-end flow' do
     # TODO: kill rabbitmq container
   end
 
-  before(:each) do
+  it 'processes simple tasks with one worker' do
+    # SETUP
     @config = Radagast::Config.new
+    # @config.log_level = Logger::DEBUG
     @manager = Radagast::Manager.new @config
     @worker = Radagast::Worker.new @config
 
@@ -19,14 +23,8 @@ RSpec.describe 'End-to-end flow' do
 
     # Worker is single-threaded and blocking. Extract it to a thread here.
     @worker_thread = Thread.new { @worker.start }
-  end
 
-  after(:each) do
-    @worker.finish
-    @worker_thread.join
-  end
-
-  it 'processes simple tasks with one worker' do
+    # THE ACTUAL TEST
     @manager.task 'echo test1' do |result|
       expect(result.exit_code).to eq 0
       expect(result.stdout).to eq 'test1'
@@ -42,9 +40,9 @@ RSpec.describe 'End-to-end flow' do
     @manager.finish do |results|
       expect(results.length).to eq 2
     end
-  end
 
-  # it 'yields task and finish callbacks', :pending do
-  #   # figure out how to deal with before/after hooks for >1 example
-  # end
+    # CLEANUP
+    @worker.finish
+    @worker_thread.join
+  end
 end

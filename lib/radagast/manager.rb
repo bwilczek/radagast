@@ -42,11 +42,11 @@ module Radagast
 
     def start
       @t = Thread.new do
-        logger.info 'Manager subscribe to queue'
+        logger.info 'Manager subscribe to results queue'
         subscribe do |data|
+          @processed_cnt += 1
           process_callback data
           @all_results << data
-          @processed_cnt += 1
           if @processed_cnt == @published_cnt
             logger.info "All #{@processed_cnt} messages have been processed"
             cleanup
