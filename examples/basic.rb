@@ -20,7 +20,7 @@ end
 
 manager.task 'cat /etc/shadow' do |result|
   puts 'Process results 2'
-  pp result
+  pp result.meta['cmd']
 end
 
 manager.finish do |results|

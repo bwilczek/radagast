@@ -27,14 +27,8 @@ module Radagast
       publish(cmd: cmd, meta: meta, task_id: task_id)
     end
 
-    def process_callback(data)
-      logger.info "Result #{@processed_cnt}/#{@published_cnt} is here: #{data}"
-      result = Result.new
-      result.exit_code = data['exit_code']
-      result.stderr = data['stderr']
-      result.stdout = data['stdout']
-      result.meta = data['meta']
-      result.task_id = data['task_id']
+    def process_callback(result)
+      logger.info "Result #{@processed_cnt}/#{@published_cnt} : #{result}"
       @callbacks[result.task_id].call(result) if @callbacks.key? result.task_id
     end
 
@@ -49,8 +43,9 @@ module Radagast
         logger.info 'Manager subscribe to results queue'
         subscribe do |data|
           @processed_cnt += 1
-          process_callback data
-          @all_results << data
+          result = Result.from_hash data
+          process_callback result
+          @all_results << result
           if @processed_cnt == @published_cnt
             logger.info "All #{@processed_cnt} messages have been processed"
             cleanup
