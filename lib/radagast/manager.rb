@@ -18,14 +18,14 @@ module Radagast
     end
 
     def task(cmd, &blk)
-      puts 'Publishing task'
+      logger.info 'Publishing task'
       @published_cnt += 1
       @callbacks[cmd] = blk
       publish(cmd: cmd)
     end
 
-    def process_data_callback(data)
-      puts "Result #{@processed_cnt}/#{@published_cnt} has arrived: #{data}"
+    def process_callback(data)
+      logger.info "Result #{@processed_cnt}/#{@published_cnt} is here: #{data}"
       result = Result.new
       result.exit_code = data['exitstatus']
       result.stderr = data['stderr'].strip
@@ -35,23 +35,20 @@ module Radagast
     end
 
     def finish
-      puts 'Finishing manager'
+      logger.info 'Finishing manager'
       @t.join
       yield @all_results if block_given?
     end
 
     def start
       @t = Thread.new do
-        puts 'Manager subscribe to queue'
-        @queue.subscribe(block: true) do |_delivery_info, _metadata, payload|
-          @processed_cnt += 1
-          data = JSON.parse(payload)
+        logger.info 'Manager subscribe to queue'
+        subscribe do |data|
+          process_callback data
           @all_results << data
-          process_data_callback(data)
+          @processed_cnt += 1
           if @processed_cnt == @published_cnt
-            puts ''
-            puts "Aggregate the results (size: #{@all_results.length})"
-            puts '... and exit manager'
+            logger.info "All #{@processed_cnt} messages have been processed"
             cleanup
           end
         end

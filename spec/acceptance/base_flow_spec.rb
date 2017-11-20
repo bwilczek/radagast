@@ -43,4 +43,8 @@ RSpec.describe 'End-to-end flow' do
       expect(results.length).to eq 2
     end
   end
+
+  # it 'yields task and finish callbacks', :pending do
+  #   # figure out how to deal with before/after hooks for >1 example
+  # end
 end
