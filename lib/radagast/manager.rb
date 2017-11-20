@@ -42,8 +42,8 @@ module Radagast
 
     def start
       @t = Thread.new do
+        puts 'Manager subscribe to queue'
         @queue.subscribe(block: true) do |_delivery_info, _metadata, payload|
-          puts 'Manager subscribe to queue'
           @processed_cnt += 1
           data = JSON.parse(payload)
           @all_results << data
