@@ -16,7 +16,7 @@ module Radagast
     end
 
     def start
-      logger.info 'Worker setup, subscribing to tasks queue'
+      logger.info "Worker setup, subscribing to tasks queue #{@queue.name}"
       subscribe do |data|
         stdout, stderr, status = Open3.capture3(data['cmd'])
         response = {

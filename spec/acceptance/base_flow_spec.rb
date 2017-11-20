@@ -15,7 +15,7 @@ RSpec.describe 'End-to-end flow' do
   it 'processes simple tasks with one worker' do
     # SETUP
     @config = Radagast::Config.new
-    # @config.log_level = Logger::DEBUG
+    @config.log_level = Logger::UNKNOWN
     # @config.log_file = '/tmp/radagast.log'
     @manager = Radagast::Manager.new @config
     @worker = Radagast::Worker.new @config

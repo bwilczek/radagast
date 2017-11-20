@@ -1,4 +1,5 @@
 require 'pp'
+require 'logger'
 
 # for development:
 require_relative 'lib/radagast/config'
@@ -7,6 +8,7 @@ require_relative 'lib/radagast/manager'
 # require 'radagast'
 
 config = Radagast::Config.new
+config.log_level = Logger::UNKNOWN
 manager = Radagast::Manager.new config
 
 manager.start

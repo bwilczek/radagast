@@ -22,8 +22,9 @@ module Radagast
     def task(cmd, meta = {}, &blk)
       logger.info 'Publishing task'
       @published_cnt += 1
-      @callbacks[cmd] = blk if block_given?
-      publish(cmd: cmd, meta: meta, task_id: SecureRandom.uuid)
+      task_id = SecureRandom.uuid
+      @callbacks[task_id] = blk if block_given?
+      publish(cmd: cmd, meta: meta, task_id: task_id)
     end
 
     def process_callback(data)
