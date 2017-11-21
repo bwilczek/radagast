@@ -27,11 +27,6 @@ module Radagast
       publish(cmd: cmd, meta: meta, task_id: task_id)
     end
 
-    def process_callback(result)
-      logger.info "Result #{@processed_cnt}/#{@published_cnt} : #{result}"
-      @callbacks[result.task_id].call(result) if @callbacks.key? result.task_id
-    end
-
     def finish
       logger.info 'Finishing manager'
       @t.join
@@ -52,6 +47,13 @@ module Radagast
           end
         end
       end
+    end
+
+    private
+
+    def process_callback(result)
+      logger.info "Result #{@processed_cnt}/#{@published_cnt} : #{result}"
+      @callbacks[result.task_id].call(result) if @callbacks.key? result.task_id
     end
   end
 end
