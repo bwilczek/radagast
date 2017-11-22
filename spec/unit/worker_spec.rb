@@ -1,7 +1,7 @@
 require_relative '../../lib/radagast/worker.rb'
 
 RSpec.describe Radagast::Worker do
-  describe '#process_data' do
+  describe '#process_task' do
     it 'publishes the result' do
       worker = Radagast::Worker.new
       allow(worker).to receive(:publish)
@@ -17,7 +17,7 @@ RSpec.describe Radagast::Worker do
         stdout: 'test',
         exit_code: 0
       }
-      worker.send :process_data, input
+      worker.send :process_task, input
       expect(worker).to have_received(:publish).with(output)
     end
   end

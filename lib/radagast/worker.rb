@@ -19,7 +19,7 @@ module Radagast
       connect
       logger.info "Worker setup, subscribing to tasks queue #{@queue.name}"
       subscribe do |data|
-        process_data(data)
+        process_task(data)
       end
     end
 
@@ -30,7 +30,7 @@ module Radagast
 
     private
 
-    def process_data(data)
+    def process_task(data)
       stdout, stderr, status = Open3.capture3(data['cmd'])
       response = {
         task_id: data['task_id'],

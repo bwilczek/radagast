@@ -38,21 +38,25 @@ module Radagast
       @t = Thread.new do
         logger.info 'Manager subscribe to results queue'
         subscribe do |data|
-          @processed_cnt += 1
-          result = Result.from_hash data
-          process_callback result
-          @all_results << result
-          if @processed_cnt == @published_cnt
-            logger.info "All #{@processed_cnt} messages have been processed"
-            # TODO: Evaluate how to cancel subscription here instead of closing
-            # connection. cleanup call belongs more to #finish
-            cleanup
-          end
+          process_result(data)
         end
       end
     end
 
     private
+
+    def process_result(data)
+      @processed_cnt += 1
+      result = Result.from_hash data
+      process_callback result
+      @all_results << result
+      if @processed_cnt == @published_cnt
+        logger.info "All #{@processed_cnt} messages have been processed"
+        # TODO: Evaluate how to cancel subscription here instead of closing
+        # connection. cleanup call belongs more to #finish
+        cleanup
+      end
+    end
 
     def process_callback(result)
       logger.info "Result #{@processed_cnt}/#{@published_cnt} : #{result}"
