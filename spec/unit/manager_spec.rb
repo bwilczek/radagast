@@ -24,6 +24,20 @@ RSpec.describe Radagast::Manager do
         @manager.task 'hello kitty!'
       end.to change { @manager.instance_variable_get :@published_cnt }.by(1)
     end
+
+    it 'adds a callback to @callbacks if block_given' do
+      allow(@manager).to receive(:publish)
+      expect do
+        @manager.task('hello kitty!') { 'a block!' }
+      end.to change { @manager.instance_variable_get(:@callbacks).size }.by(1)
+    end
+
+    it 'does not adds a callback to @callbacks if no block_given' do
+      allow(@manager).to receive(:publish)
+      expect do
+        @manager.task 'hello kitty!'
+      end.not_to change { @manager.instance_variable_get(:@callbacks).size }
+    end
   end
 
   describe '#process_result' do
