@@ -8,14 +8,21 @@ module Radagast
     attr_reader :logger
 
     def initialize(queue_name:, routing_key:, config:)
-      @rabbit = Bunny.new config.rabbit
-      @rabbit.start
+      @rabbit_url = config.rabbit
       @routing_key = routing_key
-      @channel = @rabbit.create_channel
-      @exchange = @channel.default_exchange
-      @queue = @channel.queue(queue_name, auto_delete: true)
+      @queue_name = queue_name
       @logger = Logger.new(config.log_file)
       @logger.level = config.log_level
+    end
+
+    private
+
+    def connect
+      @rabbit = Bunny.new @rabbit_url
+      @rabbit.start
+      @channel = @rabbit.create_channel
+      @exchange = @channel.default_exchange
+      @queue = @channel.queue(@queue_name, auto_delete: true)
     end
 
     def cleanup
