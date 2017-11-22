@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    radagast (0.0.1)
+    radagast (0.0.2)
       bunny (~> 2.6)
 
 GEM
@@ -33,4 +33,4 @@ DEPENDENCIES
   rspec (~> 3.7)
 
 BUNDLED WITH
-   1.14.6
+   1.15.1

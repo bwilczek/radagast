@@ -3,9 +3,22 @@ require_relative '../../lib/radagast/worker.rb'
 RSpec.describe Radagast::Worker do
   describe '#process_data' do
     it 'publishes the result' do
-      # create partial stub (stub out publish)
-      # process_data(cmd: 'echo test', task_id: 123)
-      # expect that publish is called with a specific hash
+      worker = Radagast::Worker.new
+      allow(worker).to receive(:publish)
+      input = {
+        'cmd' => 'echo test',
+        'task_id' => 123,
+        'meta' => {}
+      }
+      output = {
+        task_id: 123,
+        meta: { cmd: 'echo test' },
+        stderr: '',
+        stdout: 'test',
+        exit_code: 0
+      }
+      worker.send :process_data, input
+      expect(worker).to have_received(:publish).with(output)
     end
   end
 end
